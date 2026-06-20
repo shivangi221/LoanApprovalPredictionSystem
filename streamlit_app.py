@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
+import os
+from pathlib import Path
 
 # Set page config for a wider layout
 st.set_page_config(layout="wide", page_title="Loan Approval Prediction System", page_icon="🏦")
@@ -10,13 +12,16 @@ st.set_page_config(layout="wide", page_title="Loan Approval Prediction System", 
 @st.cache_resource
 def load_artifacts():
     try:
-        xgb_model = joblib.load('xgb_model.joblib')
-        preprocessor = joblib.load('preprocessor.joblib')
-        le_target = joblib.load('le_target.joblib')
-        important_feature_names = joblib.load('important_feature_names.joblib')
+        # Use Path to get the directory of the current script
+        script_dir = Path(__file__).parent
+        
+        xgb_model = joblib.load(script_dir / 'xgb_model.joblib')
+        preprocessor = joblib.load(script_dir / 'preprocessor.joblib')
+        le_target = joblib.load(script_dir / 'le_target.joblib')
+        important_feature_names = joblib.load(script_dir / 'important_feature_names.joblib')
         return xgb_model, preprocessor, le_target, important_feature_names
-    except FileNotFoundError:
-        st.error("Model or preprocessing artifacts not found. Please ensure 'xgb_model.joblib', 'preprocessor.joblib', 'le_target.joblib', and 'important_feature_names.joblib' are in the same directory.")
+    except FileNotFoundError as e:
+        st.error(f"Model or preprocessing artifacts not found: {e}. Please ensure 'xgb_model.joblib', 'preprocessor.joblib', 'le_target.joblib', and 'important_feature_names.joblib' are in the same directory.")
         st.stop()
 
 xgb_model, preprocessor, le_target, important_feature_names = load_artifacts()
