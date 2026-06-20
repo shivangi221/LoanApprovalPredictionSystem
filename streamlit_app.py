@@ -15,13 +15,33 @@ def load_artifacts():
         # Use Path to get the directory of the current script
         script_dir = Path(__file__).parent
         
-        xgb_model = joblib.load(script_dir / 'xgb_model.joblib')
-        preprocessor = joblib.load(script_dir / 'preprocessor.joblib')
-        le_target = joblib.load(script_dir / 'le_target.joblib')
-        important_feature_names = joblib.load(script_dir / 'important_feature_names.joblib')
+        try:
+            xgb_model = joblib.load(script_dir / 'xgb_model.joblib')
+        except Exception as e:
+            st.error(f"Failed to load xgb_model: {e}")
+            st.stop()
+            
+        try:
+            preprocessor = joblib.load(script_dir / 'preprocessor.joblib')
+        except Exception as e:
+            st.error(f"Failed to load preprocessor (version mismatch?): {e}. Ensure sklearn version matches training environment.")
+            st.stop()
+            
+        try:
+            le_target = joblib.load(script_dir / 'le_target.joblib')
+        except Exception as e:
+            st.error(f"Failed to load le_target: {e}")
+            st.stop()
+            
+        try:
+            important_feature_names = joblib.load(script_dir / 'important_feature_names.joblib')
+        except Exception as e:
+            st.error(f"Failed to load important_feature_names: {e}")
+            st.stop()
+            
         return xgb_model, preprocessor, le_target, important_feature_names
-    except FileNotFoundError as e:
-        st.error(f"Model or preprocessing artifacts not found: {e}. Please ensure 'xgb_model.joblib', 'preprocessor.joblib', 'le_target.joblib', and 'important_feature_names.joblib' are in the same directory.")
+    except Exception as e:
+        st.error(f"Model or preprocessing artifacts not found: {e}. Please ensure all .joblib files are in the same directory.")
         st.stop()
 
 xgb_model, preprocessor, le_target, important_feature_names = load_artifacts()
